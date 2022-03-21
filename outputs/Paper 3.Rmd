@@ -1,0 +1,336 @@
+---
+title: "Soical Life Experience of Sex Minorities in Australia"
+author: 
+  - Wei Zhang
+  - Yitian Li
+  - Nan An
+thanks: "Code and data are available at: https://github.com/macoyo2/Social-Life-Experiences-of-Sex-Minorities-in-Australia."
+date: "`r format(Sys.time(), '%d %B %Y')`"
+abstract: "The rights of LGBTI people in Australia have advanced over the latter half of the twentieth century and early twenty-first century to make Australia one of the most LGBT-accepting countries in the world. However, in some respects such as discrimination, marriage, and trust, LGBTI people in Australia are still experiencing harassment and hostility. In the following analysis, we utilized the data visualization to see whether there is any relationship between sexual orientation and marriage, trust, and discrimination."
+output: pdf_document
+toc: FALSE
+bibliography: reference.bib
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, include=FALSE}
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(ggpubr)
+library(ggplot2)
+library(lubridate)
+library(knitr)
+```
+
+# Introduction
+
+Sexual orientation is an enduring pattern of romantic or sexual to persons of the opposite sex or gender, the same sex or gender, or to both sexes or more than one gender. These attractions are generally subsumed under heterosexuality, homosexuality, and bisexuality [@vk1]. Although we can choose whether to act on our feelings, psychologists do not consider sexual orientation to be a conscious choice that can be voluntarily changed [@k1]. In the following essay, we will analyze the social life experience of sexual minorities in Australia. A sexual minority is a group whose sexual identity, orientation or practices differ from the majority of the surrounding society. Primarily used to refer to lesbian, gay, bisexual, or non-heterosexual individuals, it can also refer to transgender, non-binary or intersex individuals [@vk1].
+
+Equality and freedom from discrimination are fundamental human rights that belong to all people, irrespective of sexual orientation, gender identity or because they are intersex. Lesbian, gay, bisexual and transgender (LGBT) rights in Australia have advanced over the latter half of the twentieth century and early twenty-first century to make Australia one of the most LGBT-accepting countries in the world, with opinion polls and the Australian Marriage Law Postal Survey indicating widespread popular support for same-sex marriage. Same-sex marriage in Australia has been legal since 9 December 2017 [@vk2]. 
+
+The rights of the sexual minority in Australia seem to be protected well in terms of legalism. However, in some aspects of social living, lesbian, gay, bisexual, trans, gender diverse and intersex (LGBTI) people in Australia can experience discrimination, harassment, and hostility in many areas of everyday life.
+ 
+In the following analysis, we will investigate different aspects such as Marriage and Family Identification, trust in the government system, discrimination, age groups, seeing whether there is any difference in social life experience between sexual minority and sexual majority.
+ 
+The dataset we utilized is based on the data collected by the General social survey of Australia, although COVID-19 leads to unavoidable bias, the systematic and comprehensive approach conducted by the GSS is also convincing and persuasive. After the process of cleaning data, we make the explanatory variable analysis with a multifaceted and proper plot in different aspects.
+
+# Data
+
+The data set will be processed and analyzed in R [@citeR] primarily using the tidyverse [@citetidy] and dplyr [@citedp] packages. Figures and tables will be created with ggplot2 [@citegg]. The packages readxl [@citexl], ggpubr [@citebr], knitr [@citek] and lubridate [@citelu] are used to generate the R markdown report.
+
+## Data Collection process
+
+```{r, include=FALSE}
+original_data <- read_excel("C:/Users/liyit/Desktop/Proportion.xlsx")
+original_data2 <- read_excel("C:/Users/liyit/Desktop/Estimate.xlsx")
+```
+
+The dataset is based on the result of the General Social Survey of Australia. This time, GSS (General Social Survey) was performed exceeding a period of 4 months, from 15th June to 5th September 2020, although still the occurrence of  COVID-19 pandemic. The major approach of survey collection is via online and telephone interviewing. Other methods, like distributing leaflets, cannot be conducted due to the COVID-19 pandemic. Therefore, there did not exist any face-to-face interviews performed owing to COVID-19 restrictions in 2020. since the virus condition transformed the survey methodology and impact the Australian population, attention should be seriously considered when making the comparison with the same topic in 2019.  
+
+In addition, the surveys in GSS do not possess particular time limits to lessen pressure on respondents and the price of information collecting. Correspondingly, the amount of content available for any topic is limited and is specially made to the output requirements, and survey analysis is targeted for support. 
+
+### Drawbacks
+
+One of the main problems is that the impact of COVID-19 to Australia cannot be measured or estimated with an effective algorithm. Hence, the data collected by the GSS has an unavoidable bias and this will be no doubt affect the precision of data. And it is expected to further influence the result after the analysis. 
+
+### Similar Dataset or not
+
+In fact, after seeking the topic of sexual orientation, we can surely discover other datasets. However, since the survey is conducted by the GSS, which is the official institution supported by the government. Hence, it possesses the characteristic of large-scale and less bias. In addition, When compared with other datasets, the survey method of sexual orientation is more complicated and systematic. It always utilizes the sampling approach and systematic approach, which ensures the yielded outcome is more precise and persuasive. Moreover, the rate of receiving the respondent is also higher than other non-governmental institutions statistically. 
+
+Other datasets about sexual orientation are more like questionnaires rather than official surveys based on the scale and collection process. For example, Survey on Public Attitudes towards Homosexuals (2006) only collected data from 5000 telephones and finally receive 2,068 respondents aged between 18 and 64 residing in Hong Kong. This number is dismal since the survey conducted by GSS obtain approximately 40,000 respondents. It is reasonable to justify that the GSS survey is naturally with more reliable and convincible resources.
+
+## Data Cleaning
+
+```{r, echo=FALSE}
+marriage_proportion <- original_data[109:112, 1:4]
+cultural_tolerance_proportion <- original_data[26:28, 1:4]
+trust_proportion <- original_data[30:49, 1:4]
+age_group_proportion <- original_data[76:81, 1:4]
+
+# names
+names(marriage_proportion)[1] = "marriage proportion"
+names(marriage_proportion)[2] = "Heterosexual"
+names(marriage_proportion)[3] = "Gay, Lesbian or Bisexual"
+names(marriage_proportion)[4] = "Total persons"
+names(cultural_tolerance_proportion)[1] = "cultural tolerance proportion"
+names(cultural_tolerance_proportion)[2] = "Heterosexual"
+names(cultural_tolerance_proportion)[3] = "Gay, Lesbian or Bisexual"
+names(cultural_tolerance_proportion)[4] = "Total persons"
+names(trust_proportion)[1] = "Trust proportion"
+names(trust_proportion)[2] = "Heterosexual"
+names(trust_proportion)[3] = "Gay, Lesbian or Bisexual"
+names(trust_proportion)[4] = "Total persons"
+names(age_group_proportion)[1] = "age group proportion"
+names(age_group_proportion)[2] = "Heterosexual"
+names(age_group_proportion)[3] = "Gay, Lesbian or Bisexual"
+names(age_group_proportion)[4] = "Total persons"
+```
+
+```{r, include=FALSE}
+marriage_estimate <- original_data2[109:112, 1:4]
+cultural_tolerance_estimate <- original_data2[26:28, 1:4]
+trust_estimate <- original_data2[30:49, 1:4]
+age_group_estimate <- original_data2[76:81, 1:4]
+
+# names
+names(marriage_estimate)[1] = "marriage estimate"
+names(marriage_estimate)[2] = "Heterosexual"
+names(marriage_estimate)[3] = "Gay, Lesbian or Bisexual"
+names(marriage_estimate)[4] = "Total persons"
+names(cultural_tolerance_estimate)[1] = "cultural tolerance estimate"
+names(cultural_tolerance_estimate)[2] = "Heterosexual"
+names(cultural_tolerance_estimate)[3] = "Gay, Lesbian or Bisexual"
+names(cultural_tolerance_estimate)[4] = "Total persons"
+names(trust_estimate)[1] = "trust estimate"
+names(trust_estimate)[2] = "Heterosexual"
+names(trust_estimate)[3] = "Gay, Lesbian or Bisexual"
+names(trust_estimate)[4] = "Total persons"
+names(age_group_estimate)[1] = "age group estimate"
+names(age_group_estimate)[2] = "Heterosexual"
+names(age_group_estimate)[3] = "Gay, Lesbian or Bisexual"
+names(age_group_estimate)[4] = "Total persons"
+```
+
+Given the data frame, we downloaded is not like the usual dataset we have processed before. Since the first column does not account for the number of counting concerning the column variable, to ensure further analysis, we determine to eliminate the top 5 rows, which introduce the resources of the survey and with the type of sentences. We are not capable of handling this part of the introduction and meanwhile, it is also useless for the analysis. In addition, we separate the dataset with several kinds of data frames based on the introduction in the first column of numerous aspects. The outcome would be a different small dataset with different traits in terms of sexual orientation. 
+
+### Slice
+
+Due to the trait that the first column is not the counting number, only selecting the variables in the column approach is not significant. To sustain our further analysis, we decide to utilize the slice approach with the support of the $readxl$ package to create numerous datasets concerning their characteristics. For example, to get all the data in terms of `trust`, we check the original dataset and acquire that they rank from row of 30 to row of 40 and from the column of 2 to column of 4. Finally, we utilize the slice approach to get the data within the trust area. Afterward, we follow this procedure and apply the `slices` function to gain all the information we require. 
+
+### NA check
+
+To make sure the next-stage analysis can be conducted, we must check whether the dataset we created exists the NA or not. To handle this problem, we simply apply the function of $na.omit$ on the separated datasets to eliminate the missing value. After the processing, the dataset can fully satisfy the deep analysis. 
+
+### Outcome
+
+After the processing, we manage to create numerous datasets based on their respective characteristics. Meanwhile, we also successfully eliminate all the missing values, no matter whether they are missing at random or not. In this stage, we can guarantee that our data can support deep-level analysis. 
+
+## Survey
+
+Given the survey conducted by the GSS, we combine the content in this, and meanwhile, we propose several new aspects to explore people's attitudes and feelings. For example, we seek people's attitudes regarding whether the execution of the government's policy concerning sexual problems in Canada is good or not.  
+
+### Methodology
+
++ Variable of interest: People's attitudes towards sexual orientation and whether still there exist discrimination.
+
++ Variable characteristics: Both numerical and categorical are all applied.   
+
+We apply the approach of Simple random sampling (SRS). Specifically, we together created the survey via the Google form. We attempted to post the survey on social media like Facebook and WeChat. To raise people's attention to the survey, we also prepared red pockets to make sure that rewards were provided for all the participants. Notify that red pocket is a traditional approach reward in China and developed digitally in Wechat. Each member around us could be chosen with equal probability, even the people randomly surf the Internet. With the SRS, this can greatly mean being a biased representation of a group. However, since people, who filled out the survey, mainly consisted of friends or peers, the bias is unavoidable. Due to just recording the accomplishment, the survey contains the amount of missing data and we cannot justify they are missing at random or not at random. Considering the condition, we would proceed further to optimize the process in the future. 
+
+## Data Summary
+
+### Important variable
+
+We select four aspects of two original datasets, which are respectively Persons aged 15 years and over, Social Experiences - By Sexual Orientation, estimate and Persons aged 15 years and over, Social Experiences - By Sexual Orientation, proportion of persons. Hence, we establish 8 new datasets for further analysis. 
+
++ `marriage_proportion`: It has three options, which are respectively `Married in a registered marriage`, `Married in a de facto marriage`, `Not married`. Each option has their corresponding proportion value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`.
+
++ `marriage_estimate`: It has three options, which are respectively `Married in a registered marriage`, `Married in a de facto marriage`, `Not married`. Each option has their corresponding estimate value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`.
+
++ `cultural_tolerance_proportion`: It has two option, which are respectively `Agrees that it is a good thing for society to be comprised of different cultures` and `Has experienced discrimination in last 12 months`. Each option has their corresponding proportion value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`.
+
++ `cultural_tolerance_estimate`: It has two option, which are respectively `Agrees that it is a good thing for society to be comprised of different cultures` and `Has experienced discrimination in last 12 months`. Each option has their corresponding specific estimate value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`
+
++ `trust_proportion`: It has four main parts, which are respectively `Feels most people can be trusted`, `Feels police can be trusted`, `Feels the healthcare system can be trusted` and `Feels the justice system can be trusted`. Meanwhile, each part possesses three attitudes, Specifically such as `Strongly agree / Somewhat agree`, `Neither agree nor disagree` and `Somewhat disagree / Strongly`.  disagree. Each option has their corresponding specific proportion value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`. 
+
++ `trust_estimate`: It has four main parts, which are respectively `Feels most people can be trusted`, `Feels police can be trusted`, `Feels the healthcare system can be trusted` and `Feels the justice system can be trusted`. Meanwhile, each part possesses three attitudes, Specifically such as `Strongly agree / Somewhat agree`, `Neither agree nor disagree` and `Somewhat disagree / Strongly`.  disagree. Each option has their corresponding specific estimate value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`.
+
++ `age_group_proportion`: There are five options, which are respectively `15–24`, `25-39`, `40-54`, `55–69` and `70 years and over`. Each group identify the ages of participants. Each option has their corresponding specific proportion value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`. 
+
++ `age_group_estimate`: There are five options, which are respectively `15–24`, `25-39`, `40-54`, `55–69` and `70 years and over`. Each group identify the ages of participants. Each option has their corresponding specific estimate value of `Heterosexual`, `Gay, Lesbian or Bisexual` and `Total persons`.
+
+# Results
+
+We use the survey of the cultural tolerance in Australia, in terms of the sexual orientation groups, to see whether there is a relationship between sexual orientation and cultural tolerance.
+
+```{r k-table, echo=FALSE}
+cultural_tolerance_proportion <-
+  cultural_tolerance_proportion |>
+  filter(!is.na(Heterosexual)) 
+
+cultural_tolerance_proportion$Heterosexual = as.numeric(cultural_tolerance_proportion$Heterosexual)
+cultural_tolerance_proportion$`Total persons` = as.numeric(cultural_tolerance_proportion$`Total persons`)
+
+cultural_tolerance_proportion$Heterosexual <- round(cultural_tolerance_proportion$Heterosexual,1)
+cultural_tolerance_proportion$`Total persons` <- round(cultural_tolerance_proportion$`Total persons`,1)
+
+cultural_tolerance_proportion |>
+  knitr::kable(
+    caption = "Proportion (%) of respondents in the cultural tolerance survey",
+    digits = 1,
+    booktabs = TRUE, 
+    align = c("c","c","c","c","c","c"),
+    linesep = "")
+```
+
+After calculating the results, in the Table 1, we find that there are 90.6% of people in the group of Gay, Lesbian and Bisexual who agree that it is a good thing for society to be comprised of different cultures. It has a higher proportion than the Heterosexual group. It shows the sexual minority have higher cultural tolerance, and it might be the reason that in the current social situation, to be one of the groups of Gay, Lesbian and Bisexual, need the courage to accept themselves, understanding the true intrinsic core of sexual orientation, which need the understanding of cultural diversity. 
+
+However, there is still a way to go to achieve the most advancement in sexual orientation equality in Australia. From the survey of the experience of being discriminated, in terms of the sexual orientation groups, we find that the proportion of people who experience discrimination in the last 12 months is 17.4, but the proportion of people who experience discrimination in the sexual minority in the last 12 months is 33.5%, almost 2 times of 33.5%. It shows the sexual orientation equality in Australia should gain more advancement and the government's policy should give more provisions.
+
+In the following graph, we use the survey of the proportion of the population's age in Australia, in terms of the sexual orientation groups, to see whether there is a relationship between age and sexual orientation. 
+
+```{r bar-plot, echo=FALSE, fig.cap="Proportion (%) of gay, lesbian or bisexual respondents in different age groups"}
+age_group_proportion <-
+  age_group_proportion |>
+  filter(!is.na(Heterosexual)) 
+
+age_group_proportion$`Gay, Lesbian or Bisexual` = as.numeric(age_group_proportion$`Gay, Lesbian or Bisexual`)
+age_group_proportion$`Gay, Lesbian or Bisexual` <- round(age_group_proportion$`Gay, Lesbian or Bisexual`,1)
+
+age_group_proportion |>
+  ggplot(aes(x=`age group proportion`, y=`Gay, Lesbian or Bisexual`, fill=`age group proportion`)) + 
+  geom_bar(position="stack", stat="identity") +
+  labs(x = "Age Group", y = "Proportion") +
+  theme(legend.position="none") +
+  scale_fill_brewer(type="seq", palette=1) +
+  coord_flip()
+```
+
+After calculating the results in different groups of respondents, In the Figure 1 we find that there are 33.5% of people in the group of Gay, Lesbian and Bisexual are in age 15-24, in the situation that in the Australian heterosexual population from the Figure 2, there are only 13.8% people are in age 15-24. It shows that most sexual minorities in Australia are young. Also, it's obvious that there are 8% of people in the group of Gay, Lesbian and Bisexual are in age 55-69, in the situation that in the Australian population, there are only 20% people are in age 55-69. It shows that there are fewer people of the most sexual minority in Australia who are old (age>54). Thus, there is a clear relationship between age and sexual orientation.
+
+1 in 6 Gen Z adults is LGBT. And this number could continue to grow. A key reason for this growth is the Internet. In the 1990s, there was no YouTube, no Instagram, no easy way to research sexuality or gender outside a library or a Gay-Straight Alliance group. Today's teenagers have all this information at their fingertips. It's true that the rigid lines around gender and sexuality are just opening up for everybody. Young people who are just doing it are treated as leading the revolution [@bbb].
+
+
+```{r bar-plot1, echo=FALSE, fig.cap="Proportion (%) of heterosexual respondents in different age groups"}
+age_group_proportion |>
+  ggplot(aes(x=`age group proportion`, y=Heterosexual, fill=`age group proportion`)) + 
+  geom_bar(position="stack", stat="identity") +
+  labs(x = "Age Group", y = "Proportion") +
+  theme(legend.position="none") +
+  scale_fill_brewer(type="seq", palette=1) +
+  coord_flip()
+```
+
+We use the survey of the marital status in Australia, in terms of the sexual orientation groups, to see whether there is a relationship between sexual orientation and marital status.
+
+```{r bar-plot2, echo=FALSE, fig.cap="Proportion (%) of gay, lesbian or bisexual respondents in different marriage status"}
+marriage_proportion <-
+  marriage_proportion |>
+  filter(!is.na(Heterosexual)) 
+
+marriage_proportion$`Gay, Lesbian or Bisexual` = as.numeric(marriage_proportion$`Gay, Lesbian or Bisexual`)
+marriage_proportion$`Gay, Lesbian or Bisexual` <- round(marriage_proportion$`Gay, Lesbian or Bisexual`,1)
+
+marriage_proportion |>
+  ggplot(aes(x=`marriage proportion`, y=`Gay, Lesbian or Bisexual`, fill=`marriage proportion`)) + 
+  geom_bar(position="stack", stat="identity") +
+  labs(x = "Marriage Status", y = "Proportion") +
+  theme(legend.position="none") +
+  scale_fill_brewer(type="seq", palette=2) +
+  coord_flip()
+```
+
+After calculating the results in different groups of respondents, in the Figure 3 we find that there are only 8% of people in the group of Gay, Lesbian and Bisexual, are married in a registered marriage, in the situation that in the heterosexual Australian population from the Figure 4, there are 52.3% people are married in a registered marriage. Gay, Lesbian and Bisexual who are married in a registered marriage, have less proportion than the Heterosexual group. It shows that even though the Australian government have the policy to support marriage for the Gay, Lesbian and Bisexual group, they don't prefer to register a marriage. Obviously, there are still social, psychological and cultural obstacles for the sexual minority to enter legal marriage.
+
+As with the general public, Australian who identify as lesbian, gay, bisexual  are most likely to cite love as a very important reason for getting married. In a 2013 Pew Research Center survey, 84% of LGBT adults and 88% of the general public cited love as a very important reason for getting married, and at least seven-in-ten in both groups cited companionship (71% and 76%, respectively). But there were some differences, too. LGBT Americans, for instance, were twice as likely as those in the general public to cite legal rights and benefits as a very important reason for getting married (46% versus 23%), while those in the general public were nearly twice as likely as LGBT Americans [@aaa].
+
+```{r bar-plot3, echo=FALSE, fig.cap="Proportion (%) of heterosexual respondents in different marriage status"}
+marriage_proportion |>
+  ggplot(aes(x=`marriage proportion`, y=Heterosexual, fill=`marriage proportion`)) + 
+  geom_bar(position="stack", stat="identity") +
+  labs(x = "Marriage Status", y = "Proportion") +
+  theme(legend.position="none") +
+  scale_fill_brewer(type="seq", palette=2) +
+  coord_flip()
+```
+
+In the above analysis of the survey, we find that there are a higher portion of people in the sexual minority group is being discriminated against, such as experiencing physical or threatened assault or actual or attempted break-in. In the following table, we do the analysis on the survey about trust, in terms of 4 aspects. The first one is whether feel most people can be trusted, the remaining ones are whether the healthcare system can be trusted, whether police can be trusted, whether the justice system can be trusted.
+
+\newpage
+```{r k-table1, echo=FALSE}
+trust_proportion$Heterosexual <- as.numeric(trust_proportion$Heterosexual)
+trust_proportion$`Gay, Lesbian or Bisexual` <- as.numeric(trust_proportion$`Gay, Lesbian or Bisexual`)
+trust_proportion$`Total persons` <- as.numeric(trust_proportion$`Total persons`)
+trust_proportion <-
+  trust_proportion |>
+  mutate_if(is.numeric, round, digits=1)
+
+trust_proportion$Heterosexual <- as.character(trust_proportion$Heterosexual)
+trust_proportion$`Gay, Lesbian or Bisexual` <- as.character(trust_proportion$`Gay, Lesbian or Bisexual`)
+trust_proportion$`Total persons` <- as.character(trust_proportion$`Total persons`)
+trust_proportion[is.na(trust_proportion)] = ''
+
+trust_proportion |>
+  knitr::kable(
+    caption = "Proportion (%) of respondents in the trust survey",
+    digits = 1,
+    booktabs = TRUE, 
+    align = c("c","c","c","c","c","c"))
+```
+
+After calculating the results in different groups of respondents, in the Table 2, we find that there are 45.3% of people in the group of Gay, Lesbian and Bisexual can feel most people can be trusted, in the situation that in the Australian population, there are only 56.1% of people can feel most people can be trusted. It shows that there are more people in the sexual minority group in Australia who choose not to trust others or be neutral. 
+
+In terms of the healthcare system, we find that there are only 7.6% of people in the group of Gay, Lesbian and Bisexual can feel healthcare system cannot be trusted, in the situation that in the Australian population, there are 13.9% of people feel healthcare system cannot be trusted. It shows that there are more people in the sexual minority group in Australia who choose to trust the healthcare system. 
+
+In terms of policy, we find that there are only 15.8% of people in the group of Gay, Lesbian and Bisexual can feel police cannot be trusted, in the situation that in the Australian population, there are 8.7% of people feel police cannot be trusted. It shows that there are more people in the sexual minority group in Australia who choose to trust the police. 
+
+In terms of the justice system, we find that there are only 11.4% of people in the group of Gay, Lesbian and Bisexual can feel justice system cannot be trusted, in the situation that in the Australian population, there are 20.3% of people feel justice system cannot be trusted. It shows that there are more people in the sexual minority group in Australia who choose to trust the justice system.
+
+# Discussion
+
+In the early twenty-first century, lesbian, gay, bisexual, and transgender (LGBT) rights in Australia have progressed significantly, making Australia one of the world's most LGBT-accepting countries. A @1's research indicates 79% of Australians from the survey agreed that society should accept homosexuality. This survey from 39 countries also reports broad acceptance of homosexuality in the European Union, North American, and most Latin America. However, there is considerable opposition to homosexuality in largely Muslim countries and Africa, as well as areas of Asia and Russia [@1]. Australia, as the fifth-most supportive country surveyed in the world, makes a great example of presenting an equal society for people with various sexuality. Especially in their trust in healthcare and justice system, lesbian, gay, or bisexual populations in our survey results reflect that even a higher proportion of them feel the healthcare (69.8% vs. 67.3%) and justice system (67.0% vs. 57.9%) can be trusted compared with the heterosexual group. Although there are strict laws protecting this community, discrimination against them still exists in Australian society. Nearly 33% of Australian lesbian, gay or bisexual populations (only 17% of the heterosexual group) have experienced discrimination in the last 12 months in 2019. This may explain why only 45.3% of them feel most people can be trusted. This report aims to discuss more factors impacting LGBT group's life in worldwide society.
+
+Another finding in the results demonstrates that the majority of Australian lesbian, gay or bisexual populations range from 15 to 24 or 25 to 39 age group, considered as young population. This is consistent with @2's research that Young people are significantly more open to sexual diversity and have a higher degree of acceptance. The younger the respondents were, the higher the proportion of people who opposed homosexuality as morbid, biased attitudes based on rigid stereotypes, a stereotyped dichotomy of gender roles, and even HIV-related stigma. Similarly, a very high proportion of young respondents can accept that their children are LGBT.
+
+Australia has legalized same-sex marriage in December 2017. Despite the successful legislation to allow same-sex marriage, we found that only 8.6% of homosexual couples are in a registered marriage and most proportion (72.6%) of Australian lesbian, gay or bisexual populations are not married. 
+
+## Visibility of Sexual Minorities in Social Life
+
+One of the core characteristics of the survival situation of sexual minorities is that the visibility of sexual minorities in social life is very low. Although they live all over the country and work in all walks of life, only a few people will fully disclose their sexual orientation, gender identity, or gender expression in the public sphere, such as school, workplace, or religious life. Even in families belonging to the private sector, very few people can be completely open. At the same time, few characters or related content appear in the media, especially in newspapers, magazines, radio, television, movies, and other traditional media with a wide range of audiences.
+
+Sexual minorities do not easily disclose their sexual orientation, gender identity, or gender expression in their daily life, which is undoubtedly out of concern for the surrounding environment, and these concerns have their practical basis [@2]. Compared with peers who do not disclose their sexual minority identity at all, the disclosure or full disclosure of their sexual minority identity to some people is often accompanied by a higher risk of discrimination, especially in the family, school, and religious life. Moreover, the concern of sexual minorities about the environment is also reflected in the field of social services. When facing medical workers, psychological counselors, or social service providers, many people have no scruples about disclosing their sexual minority identity.
+
+Because people who are heterosexual cannot disclose their sexual orientation, gender identity, or gender expression in life without burden, "coming out" to some people only means that sexual minorities have to suppress or hide on many occasions [@2]. Sexual minorities are widely troubled by psychological problems, and some of them are directly treated unfairly or discriminated against because of their sexual orientation, gender identity, or gender expression. Some people's academic and career development may also be affected in part by these psychological problems and negative experiences.
+
+## Marriage and Family Identification
+
+The difficulties caused by the social environment that cannot allow sexual minorities to freely express their sexual orientation, gender identity, or gender expression have been fully reflected in the issue of marriage. The data show that the marriage rate of sexual minorities of marriageable age is much lower than that of non-minorities of the same age, which shows that a considerable number of sexual minorities will actually try to avoid entering heterosexual marriage for a period of time [@2].
+
+However, in the face of marriage pressure from society and family, "coming out" may be accompanied by consequences that can't or won't bear. In the end, many sexual minorities may still enter heterosexual marriage [@2]. On the other hand, due to the extremely low visibility of sexual minorities in society, the double-sided nature of families for sexual minorities is also highlighted. On one aspect, sexual minorities hope to open their hearts to their families and be accepted by their families; On the other aspect, they are under multiple pressures from their families. Compared with other environments, sexual minorities have the highest proportion of full or partial disclosure in the family. But at the same time, the incidence of unfair treatment and discrimination against sexual minorities in the family is also the highest; In addition, most people also need to face the pressure brought by their family's expectations of getting married and having children. Although it is impossible to judge from this survey whether sexual minorities disclose their sexual orientation, gender identity, or gender expression to their families more out of active choice or forced by the situation, it has to be said that the disclosure or partial disclosure of sexual minority identity in the family is indeed related to the higher incidence of discrimination, and according to the estimates of respondents, the acceptance of sexual minorities by families is also relatively weak. The almost invisible state of sexual minorities in society makes most families at a loss when facing the identity of sexual minorities of their members. Some families may hope to change the sexual orientation, gender identity, or gender expression of sexual minorities with the help of family affection or parental authority, resulting in more troubles and even harm to sexual minorities. It can be said that when the social environment is not friendly to sexual minorities, families with sexual minorities also bear corresponding pressure, and this pressure will eventually be transmitted to sexual minorities.
+
+## Recommendation and Weakness
+
+Although many western countries are doing a great job of eliminating discrimination, we are still required to consistently improve the cultural and social environment for targeted sexual minorities. In addition to the popularization of knowledge, friendly cultural public opinion and positive social support are essential to promote the situation of sexual minorities. Moreover, sexual minorities have some difficulties in accessing public welfare services of social organizations. Therefore, it is necessary to improve the cultural environment of targeted minorities and strengthen the breadth and intensity of social support networks for sexual minorities.
+
+The survey results in this report only collected the respondents of gay, lesbian and bisexual populations. Currently, there are more specific classifications of sexuality such as queer, pansexual, or asexual. The dataset contains bias that it does not include the entire sex minorities community in Australia. Ethics concerns about the privacy of personal social life experiences may affect the data collection process that some respondents may not be honest on the answers. Future studies could further investigate more insights on the social life of various sex orientation populations.
+ 
+\newpage
+
+# Appendix
+
+## Survey
+
+The link to our survey is [https://docs.google.com/forms/d/e/1FAIpQLSdS7V-6hpVE0d3Ds6SDgz21QxA2_QmTjIEd-3K3KeasCmlkTg/viewform]
+
+![Sex Orientaion Survey Q1-Q2]("/Users/liyit/Desktop/q1-q2.png")
+![Sex Orientaion Survey Q3-Q5]("/Users/liyit/Desktop/q3-q5.png")
+![Sex Orientaion Survey Q6-Q8]("/Users/liyit/Desktop/q6-q8.jpg")
+
+\newpage
+
+# References
+
